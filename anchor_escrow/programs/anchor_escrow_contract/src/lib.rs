@@ -22,5 +22,3 @@ pub mod blueshift_anchor_escrow {
     }
 }
 
-#[derive(Accounts)]
-pub struct Initialize {}

@@ -3,7 +3,7 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{self, CloseAccount, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
-use crate::state::Escrow;
+use crate::{error::EscrowError, state::Escrow};
 
 #[derive(Accounts)]
 pub struct Refund<'info> {
@@ -13,8 +13,8 @@ pub struct Refund<'info> {
     #[account(
         mut, 
         close = maker, 
-        has_one = maker, 
-        has_one = mint_a,
+        has_one = maker @ EscrowError::InvalidMaker, 
+        has_one = mint_a @ EscrowError::InvalidMintA,
         seeds = [b"escrow", maker.key().as_ref(), escrow.seed.to_le_bytes().as_ref()], 
         bump = escrow.bump
     )]
