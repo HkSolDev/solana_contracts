@@ -296,3 +296,8 @@ Moving tokens out of a vault owned by a PDA requires `CpiContext::new_with_signe
 - [Anchor Documentation](https://www.anchor-lang.com/)
 - [SPL Token Program](https://spl.solana.com/token)
 - [Solana Cookbook — PDAs](https://solanacookbook.com/core-concepts/pdas.html)
+
+---
+
+## 📂 Other Contracts in this Workspace
+- 🏦 [Anchor Vault Challenge](../vault/README.md) — A secure vault program for depositing and withdrawing SOL.
