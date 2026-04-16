@@ -1,38 +1,40 @@
-extern crate std;
-
-use quasar_svm::{Account, Instruction, Pubkey, QuasarSvm};
-use solana_address::Address;
-
-use quasar_vault_client::InitializeInstruction;
-
-fn setup() -> QuasarSvm {
-    let elf = include_bytes!("../target/deploy/quasar_vault.so");
-    QuasarSvm::new()
-        .with_program(&Pubkey::from(crate::ID), elf)
-}
-
 #[test]
-fn test_initialize() {
-    let mut svm = setup();
+fn test_deposit() {
+    let mollusk = setup();
 
-    let payer = Pubkey::new_unique();
+    let (system_program, system_program_account) = keyed_account_for_system_program();
 
-    let instruction: Instruction = InitializeInstruction {
-        payer: Address::from(payer.to_bytes()),
-        system_program: Address::from(quasar_svm::system_program::ID.to_bytes()),
+    let user = Address::new_unique();
+    let user_account = Account::new(10_000_000_000, 0, &system_program);
+
+    let (vault, _vault_bump) =
+        Address::find_program_address(&[b"vault", user.as_ref()], &crate::ID);
+    let vault_account = Account::new(0, 0, &system_program);
+
+    let deposit_amount: u64 = 1_000_000_000;
+
+    let instruction: Instruction = DepositInstruction {
+        user,
+        vault,
+        system_program,
+        amount: deposit_amount,
     }
     .into();
 
-    let result = svm.process_instruction(
+    let result = mollusk.process_instruction(
         &instruction,
-        &[Account {
-            address: payer,
-            lamports: 10_000_000_000,
-            data: vec![],
-            owner: quasar_svm::system_program::ID,
-            executable: false,
-        }],
+        &[
+            (user, user_account.clone()),
+            (vault, vault_account.clone()),
+            (system_program, system_program_account.clone()),
+        ],
     );
 
-    result.assert_success();
+    assert!(result.program_result.is_ok());
+
+    let user_after = result.resulting_accounts[0].1.lamports;
+    let vault_after = result.resulting_accounts[1].1.lamports;
+
+    assert_eq!(user_after, 10_000_000_000 - deposit_amount);
+    assert_eq!(vault_after, deposit_amount);
 }

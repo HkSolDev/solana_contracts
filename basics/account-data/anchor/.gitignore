@@ -1,0 +1,17 @@
+.anchor
+.DS_Store
+target
+node_modules
+test-ledger
+*.so
+*.json
+!/Anchor.toml
+!/package.json
+!/tsconfig.json
+!/Cargo.toml
+!/Cargo.lock
+!/package-lock.json
+.yarn
+yarn-error.log
+**/*.rs.bk
+.env
